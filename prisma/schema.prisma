@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model client {
+  ClientID  Int       @id @default(autoincrement())
+  FirstName String?   @db.VarChar(100)
+  LastName  String?   @db.VarChar(100)
+  Address   String?   @db.VarChar(255)
+  City      String?   @db.VarChar(255)
+  Phone     String?   @db.VarChar(20)
+  Email     String?   @db.VarChar(255)
+  invoice   invoice[]
+}
+
+model company {
+  CompanyID         Int       @id @default(autoincrement())
+  Name              String?   @db.VarChar(255)
+  Address           String?   @db.VarChar(255)
+  CreationDate      DateTime? @db.Date
+  FiscalIdentifier  String?   @db.VarChar(255)
+  Capital           Decimal?  @db.Decimal(10, 2)
+  NumberOfEmployees Int?
+  City              String?   @db.VarChar(255)
+  Responsible       String?   @db.VarChar(255)
+  Phone             String?   @db.VarChar(20)
+  Email             String?   @db.VarChar(255)
+}
+
+model invoice {
+  InvoiceID   Int       @id @default(autoincrement())
+  ClientID    Int?
+  Date        DateTime? @db.Date
+  TotalAmount Decimal?  @db.Decimal(10, 2)
+  client      client?   @relation(fields: [ClientID], references: [ClientID], onDelete: Restrict, onUpdate: Restrict, map: "invoice_ibfk_1")
+
+  @@index([ClientID], map: "ClientID")
+}
+
+model product {
+  ProductID     Int             @id @default(autoincrement())
+  Name          String?         @db.VarChar(255)
+  PurchasePrice Decimal?        @db.Decimal(10, 2)
+  SalePrice     Decimal?        @db.Decimal(10, 2)
+  MarginRate    Decimal?        @db.Decimal(5, 2)
+  Dimension     String?         @db.VarChar(50)
+  Size          String?         @db.VarChar(50)
+  purchaseorder purchaseorder[]
+}
+
+model purchaseorder {
+  OrderID    Int       @id @default(autoincrement())
+  SupplierID Int?
+  ProductID  Int?
+  Quantity   Int?
+  OrderDate  DateTime? @db.Date
+  supplier   supplier? @relation(fields: [SupplierID], references: [SupplierID], onDelete: Restrict, onUpdate: Restrict, map: "purchaseorder_ibfk_1")
+  product    product?  @relation(fields: [ProductID], references: [ProductID], onDelete: Restrict, onUpdate: Restrict, map: "purchaseorder_ibfk_2")
+
+  @@index([ProductID], map: "ProductID")
+  @@index([SupplierID], map: "SupplierID")
+}
+
+model supplier {
+  SupplierID    Int             @id @default(autoincrement())
+  Name          String?         @db.VarChar(255)
+  Address       String?         @db.VarChar(255)
+  City          String?         @db.VarChar(255)
+  Phone         String?         @db.VarChar(20)
+  Email         String?         @db.VarChar(255)
+  purchaseorder purchaseorder[]
+}
