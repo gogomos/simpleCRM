@@ -32,6 +32,22 @@ const getPurchaseOrderById = async (req, res) => {
 const createPurchaseOrder = async (req, res) => {
   const { SupplierID, ProductID, Quantity, OrderDate } = req.body;
   try {
+    const existingSupplier = await prisma.supplier.findUnique({
+      where: {
+        SupplierID: parseInt(SupplierID)
+      }
+    });
+    const existingProduct = await prisma.product.findUnique({
+      where: {
+        ProductID: parseInt(ProductID)
+      }
+    });
+    if (!existingSupplier) {
+      return res.status(404).json({ error: 'Supplier not found.' });
+    }
+    if (!existingProduct) {
+      return res.status(404).json({ error: 'Product not found.' });
+    }
     const newPurchaseOrder = await prisma.purchaseorder.create({
       data: {
         SupplierID,

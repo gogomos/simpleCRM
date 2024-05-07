@@ -32,6 +32,15 @@ const getInvoiceById = async (req, res) => {
 const createInvoice = async (req, res) => {
   const { ClientID, Date, TotalAmount } = req.body;
   try {
+    const existingClient = await prisma.client.findUnique({
+      where: {
+        ClientID: parseInt(ClientID)
+      }
+    });
+
+    if (!existingClient) {
+      return res.status(404).json({ error: 'Client not found.' });
+    }
     const newInvoice = await prisma.invoice.create({
       data: {
         ClientID,
